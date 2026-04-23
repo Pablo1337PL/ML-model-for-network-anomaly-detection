@@ -1,0 +1,40 @@
+=================================================================
+             RAPORT Z MODELU BENCHMARKOWEGO (R)          
+             Klasyfikacja Ruchu Sieciowego (DDoS / Benign)       
+=================================================================
+
+[ DANE WEJŚCIOWE I PRZETWARZANIE ]
+- Źródło danych: Zbiór CICIDS2017 (8 plików .csv/.pcap_ISCX)
+- Wielkość wejściowa: 2 830 743 obserwacji
+- Wielkość próbki do treningu/testu: 50 000 obserwacji
+- Podział zbioru: 70% Treningowy (35 001) / 30% Testowy (14 999)
+- Operacje czyszczące:
+  * Zastąpienie wartości pustych (NA) oraz nieskończonych (Inf) zerami.
+  * Usunięcie zmiennych o niemal zerowej wariancji (nearZeroVar).
+  * Odrzucenie 25 kolumn o korelacji > 0.90 w celu uniknięcia współliniowości.
+  * Usunięcie 883 obserwacji wpływowych (Odległość Cooka).
+
+[ MODEL I SELEKCJA CECH ]
+- Rodzaj algorytmu: Regresja logistyczna (Binomial GLM)
+- Kryterium selekcji: AIC (Akaike Information Criterion)
+- Kierunek poszukiwań: Krokowa dwukierunkowa (Both)
+- Finalny zestaw cech:
+ [1] "Bwd.Packet.Length.Std"   "Avg.Fwd.Segment.Size"    "Init_Win_bytes_backward" "Subflow.Bwd.Packets"    
+ [5] "PSH.Flag.Count"          "Packet.Length.Variance"  "Destination.Port"        "min_seg_size_forward"   
+ [9] "Fwd.IAT.Std"             "Down.Up.Ratio"           "ACK.Flag.Count"          "URG.Flag.Count"         
+[13] "Bwd.Packet.Length.Min"   "Flow.IAT.Std"            "Init_Win_bytes_forward"  "Fwd.Packet.Length.Std"  
+[17] "Flow.Packets.s"          "Active.Max"  
+
+[ WYNIKI EWALUACJI NA ZBIORZE TESTOWYM ]
+- Próg odcięcia (Threshold): 0.5
+- Precision: 0.9220
+- Recall:    0.9017
+- F1-Score:  0.9117
+
+[ MACIERZ POMYŁEK (CONFUSION MATRIX) ]
+                             | Predykcja (Benign: 0) | Predykcja (Atak: 1)
+-----------------------------|-----------------------|--------------------
+Faktycznie (Benign: 0)       | 11825                 | 225
+Faktycznie (Atak: 1)         | 290                   | 2659
+
+=================================================================
