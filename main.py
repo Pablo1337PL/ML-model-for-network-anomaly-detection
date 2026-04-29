@@ -1,6 +1,5 @@
 import sys
 import os
-import site
 import subprocess
 import pandas as pd
 import numpy as np
@@ -54,20 +53,35 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet("""
             QMainWindow { background-color: #f5f5f5; }
-            QTableView { font-size: 10pt; background-color: white; }
+            QTableView { font-size: 10pt; background-color: white; border: 1px solid #ccc; border-radius: 4px; }
             QPushButton { font-size: 11pt; font-weight: bold; padding: 10px; border-radius: 6px; background-color: #e0e0e0; }
             QPushButton:enabled { background-color: #2196F3; color: white; }
+            QPushButton:hover:enabled { background-color: #1976D2; }
         """)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        self.title_label = QLabel("Detektor Anomalii Sieciowych")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("font-size: 28pt; font-weight: bold; color: #2C3E50; margin-top: 10px;")
+
+        self.authors_label = QLabel("Autorzy: Martyna Sadowska, Jan Taran, Kacper Tomczyk")
+        self.authors_label.setAlignment(Qt.AlignCenter)
+        self.authors_label.setStyleSheet("font-size: 14pt; color: #7F8C8D; margin-bottom: 20px; font-style: italic;")
+
+        main_layout.addWidget(self.title_label)
+        main_layout.addWidget(self.authors_label)
+        # ----------------------------------------
 
         self.table_view = QTableView()
+        self.table_view.setEditTriggers(QTableView.NoEditTriggers)
         main_layout.addWidget(self.table_view)
 
         btn_layout = QHBoxLayout()
-
         self.btn_import_csv = QPushButton("Importuj CSV")
         self.btn_import_pcap = QPushButton("Importuj PCAP")
         self.btn_analyze = QPushButton("Znajdź anomalie")
@@ -104,7 +118,7 @@ class MainWindow(QMainWindow):
             self.table_view.setModel(self.table_model)
             self.btn_analyze.setEnabled(True)
         except Exception as e:
-            self.show_custom_msg("Błąd", str(e), QMessageBox.Critical)
+            self.show_custom_message("Błąd", str(e), QMessageBox.Critical)
 
     def load_pcap(self):
         pcap, _ = QFileDialog.getOpenFileName(
@@ -113,8 +127,15 @@ class MainWindow(QMainWindow):
         if not pcap:
             return
 
+        self.show_custom_message("Konwersja", "Trwa wyciąganie danych przez tshark...", QMessageBox.Information)
+
         try:
             output = pcap + "_tshark.csv"
+
+            env = os.environ.copy()
+            ws_path = r"C:\Program Files\Wireshark"
+            if os.path.exists(ws_path):
+                env["PATH"] = ws_path + os.pathsep + env["PATH"]
 
             tshark_cmd = [
                 "tshark",
@@ -138,27 +159,27 @@ class MainWindow(QMainWindow):
                     tshark_cmd,
                     stdout=f,
                     stderr=subprocess.PIPE,
-                    text=True
+                    text=True,
+                    env=env
                 )
 
             if result.stderr:
                 print("TSHARK STDERR:", result.stderr)
 
             if not os.path.exists(output) or os.path.getsize(output) < 50:
-                raise Exception("tshark nie wygenerował danych")
+                raise Exception("tshark nie wygenerował danych. Sprawdź, czy pcap nie jest pusty.")
 
             self.df = pd.read_csv(output)
-
             self.df = self.df.fillna(0)
 
             self.table_model = PandasModel(self.df)
             self.table_view.setModel(self.table_model)
             self.btn_analyze.setEnabled(True)
 
-            self.show_custom_msg("Sukces", "PCAP został wczytany przez tshark", QMessageBox.Information)
+            self.show_custom_message("Sukces", "PCAP został wczytany przez tshark", QMessageBox.Information)
 
         except Exception as e:
-            self.show_custom_msg("Błąd PCAP", str(e), QMessageBox.Critical)
+            self.show_custom_message("Błąd PCAP", str(e), QMessageBox.Critical)
             print(str(e))
 
     def run_analysis(self):
@@ -178,7 +199,7 @@ class MainWindow(QMainWindow):
             self.show_custom_message("Wynik", f"Znaleziono {len(anomalies)} anomalii! Zostały zaznaczone na czerwono", QMessageBox.Warning)
 
         except Exception as e:
-            self.show_custom_msg("Błąd", str(e), QMessageBox.Critical)
+            self.show_custom_message("Błąd", str(e), QMessageBox.Critical)
             print(str(e))
 
 
