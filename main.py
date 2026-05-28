@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet("""
             QMainWindow { background-color: #f5f5f5; }
-            QTableView { font-size: 10pt; background-color: white; border: 1px solid #ccc; border-radius: 4px; }
+            QTableView { font-size: 10pt; color: black; background-color: white; border: 1px solid #ccc; border-radius: 4px; }
             QPushButton { font-size: 11pt; font-weight: bold; padding: 10px; border-radius: 6px; background-color: #e0e0e0; }
             QPushButton:enabled { background-color: #2196F3; color: white; }
             QPushButton:hover:enabled { background-color: #1976D2; }
@@ -64,7 +64,9 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(15)
+        
 
+        # Title and authors
         self.title_label = QLabel("Detektor Anomalii Sieciowych")
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setStyleSheet("font-size: 28pt; font-weight: bold; color: #2C3E50; margin-top: 10px;")
@@ -77,10 +79,12 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.authors_label)
         # ----------------------------------------
 
+        # Table
         self.table_view = QTableView()
         self.table_view.setEditTriggers(QTableView.NoEditTriggers)
         main_layout.addWidget(self.table_view)
 
+        # Buttons under the table
         btn_layout = QHBoxLayout()
         self.btn_import_csv = QPushButton("Importuj CSV")
         self.btn_import_pcap = QPushButton("Importuj PCAP")
