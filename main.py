@@ -87,18 +87,18 @@ class MainWindow(QMainWindow):
         # Buttons under the table
         btn_layout = QHBoxLayout()
         self.btn_import_csv = QPushButton("Importuj CSV")
-        self.btn_import_pcap = QPushButton("Importuj PCAP")
+        #self.btn_import_pcap = QPushButton("Importuj PCAP")
         self.btn_analyze = QPushButton("Znajdź anomalie")
         self.btn_analyze.setEnabled(False)
 
         btn_layout.addWidget(self.btn_import_csv)
-        btn_layout.addWidget(self.btn_import_pcap)
+        #btn_layout.addWidget(self.btn_import_pcap)
         btn_layout.addWidget(self.btn_analyze)
 
         main_layout.addLayout(btn_layout)
 
         self.btn_import_csv.clicked.connect(self.load_csv)
-        self.btn_import_pcap.clicked.connect(self.load_pcap)
+        #self.btn_import_pcap.clicked.connect(self.load_pcap)
         self.btn_analyze.clicked.connect(self.run_analysis)
 
     def show_custom_message(self, title, text, icon_type):
